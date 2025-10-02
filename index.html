@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toolbox do Influencer Pet IA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <h1>🛠️ Toolbox do Influencer Pet IA</h1>
+        <nav>
+            <button onclick="mostrarFerramenta('editor-fotos-ia')" class="nav-btn">Editor de Fotos IA</button>
+            <button onclick="mostrarFerramenta('gerador-imagens-ia')" class="nav-btn">Gerador de Imagens IA</button>
+            <button onclick="mostrarFerramenta('gerador-hashtags')" class="nav-btn">Gerador de Hashtags</button>
+            <button onclick="mostrarFerramenta('gerador-legenda')" class="nav-btn">Gerador de Legendas</button>
+            <button onclick="mostrarFerramenta('editor-videos')" class="nav-btn">Editor de Vídeos</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="editor-fotos-ia" class="ferramenta-container active">
+            <section class="ferramenta-ia-imagem" style="position: relative;">
+                <h2>✨ Editor IA: Remoção de Fundo e Limpeza de Objetos</h2>
+                <p>Utilize o poder da Inteligência Artificial para remover fundos ou objetos indesejados nas suas fotos. </p>
+
+                <input type="file" id="inputFotoIA" accept="image/*" onchange="previewImagemIA(event)">
+
+                <div class="area-trabalho ia-preview">
+                    <img id="imagemPreview" src="" alt="Pré-visualização da Imagem" style="display: none;">
+                    <p id="avisoPreview">Carregue uma imagem para começar.</p>
+                </div>
+
+                <div class="controles ia-controles">
+                    <h4>Ações de IA</h4>
+                    
+                    <div class="input-group">
+                        <label for="acaoIA">Selecione a Ação:</label>
+                        <select id="acaoIA" required>
+                            <option value="remover_fundo">Remover Fundo (Deixar Transparente)</option>
+                            <option value="substituir_fundo">Substituir Fundo por Cor/Cena</option>
+                            <option value="remover_objeto">Remover Objeto (Inpainting)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group" id="inputCorFundo" style="display:none;">
+                        <label for="corFundo">Cor de Fundo (Hex ou Nome):</label>
+                        <input type="text" id="corFundo" value="#FFFFFF" placeholder="Ex: #FF0000 ou green">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="promptRemocao">O que remover ou o que colocar no fundo? (Prompt para IA):</label>
+                        <textarea id="promptRemocao" rows="2" placeholder="Ex: Remover a coleira, ou: Colocar um fundo de praia."></textarea>
+                    </div>
+                    
+                    <button onclick="enviarParaIARemocao()">Enviar para Processamento de IA</button>
+                    
+                    <aside class="aviso-processamento" id="statusIARemocao">
+                        Status: Pronto para enviar.
+                    </aside>
+                </div>
+                
+                <div id="loadingRemocao" class="loading-overlay hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Aguardando resposta do servidor de IA. Processando imagem...</p>
+                    <small>Isso pode levar alguns segundos, dependendo da fila de processamento.</small>
+                </div>
+            </section>
+        </div>
+
+        <div id="gerador-imagens-ia" class="ferramenta-container hidden">
+            <section class="ferramenta-ia-gerador" style="position: relative;">
+                <h2>🎨 Gerador de Imagens com IA (Texto para Imagem)</h2>
+                <p>Descreva o que você quer que a IA crie (Ex: "Um filhote de Golden Retriever surfando ao pôr do sol").</p>
+
+                <div class="form-container">
+                    
+                    <div class="input-group">
+                        <label for="promptImagem">Prompt de Criação (O que você quer ver?)</label>
+                        <textarea id="promptImagem" rows="3" placeholder="Ex: Um gato persa vestindo óculos de sol, em estilo aquarela, alta resolução"></textarea>
+                    </div>
+                    
+                    <fieldset>
+                        <legend>Opções de Geração</legend>
+                        
+                        <div class="input-group">
+                            <label for="tamanhoImagem">Tamanho/Qualidade:</label>
+                            <select id="tamanhoImagem">
+                                <option value="1024x1024_FAST">Quadrada (Rápido/Econômico)</option>
+                                <option value="1792x1024_HD">Horizontal (Padrão/Equilíbrio)</option>
+                                <option value="1024x1792_HD">Vertical (Melhor Qualidade/Custo Alto)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="estiloImagem">Estilo de Imagem:</label>
+                            <select id="estiloImagem">
+                                <option value="FOTOREALISMO">Foto Realista</option>
+                                <option value="CARTOON">Desenho Animado</option>
+                                <option value="ILUSTRACAO">Ilustração Digital</option>
+                                <option value="PINTURA">Pintura a Óleo</option>
+                            </select>
+                        </div>
+                        
+                    </fieldset>
+                    
+                    <button onclick="enviarPromptParaGeracao()">Gerar Imagem com IA</button>
+                </div>
+
+                <div class="visualizacao-resultado hidden" id="visualizacaoGeracao">
+                    <h3>Resultado da IA</h3>
+                    <p>Aguardando resposta do servidor...</p>
+                    <img id="imagemGerada" src="" alt="Imagem gerada pela IA" style="max-width: 100%;">
+                    <a id="linkDownload" href="#" download="imagem_pet_ia.png" class="download-btn" style="display:none;">Baixar Imagem</a>
+                </div>
+
+                <aside class="aviso-processamento" id="statusIAGeracao">
+                    Status: Pronto para receber o prompt.
+                </aside>
+
+                <div id="loadingGeracao" class="loading-overlay hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Aguardando resposta do servidor de IA. Criando sua imagem...</p>
+                    <small>Não feche esta página. O processamento de imagem é a parte mais lenta.</small>
+                </div>
+            </section>
+        </div>
+
+        <div id="gerador-hashtags" class="ferramenta-container hidden">
+            <section class="ferramenta-ia-hashtags" style="position: relative;">
+                <h2>#️⃣ Gerador de Hashtags Inteligente</h2>
+                <p>A IA analisa o conteúdo da sua foto (raça, ação, emoção) e gera as hashtags mais relevantes para o Instagram.</p>
+
+                <input type="file" id="inputFotoHashtag" accept="image/*" onchange="previewFotoHashtag(event)">
+
+                <div class="area-trabalho hashtag-preview">
+                    <img id="imagemHashtagPreview" src="" alt="Pré-visualização da Imagem" style="max-width: 100%; display: none;">
+                    <p id="avisoHashtag">Carregue uma foto do seu pet.</p>
+                </div>
+
+                <button onclick="enviarFotoParaAnalise()">Gerar Hashtags Agora</button>
+
+                <div class="resultado-hashtags hidden" id="resultadoHashtags">
+                    <h4>Hashtags Sugeridas:</h4>
+                    <textarea id="hashtagsGeradas" rows="5" readonly></textarea>
+                    <button onclick="copiarHashtags()">Copiar Hashtags</button>
+                </div>
+
+                <aside class="aviso-processamento" id="statusHashtag">
+                    Status: Pronto para carregar a imagem.
+                </aside>
+
+                <div id="loadingHashtag" class="loading-overlay hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Aguardando análise da IA. Lendo o conteúdo da imagem...</p>
+                    <small>Este processo é geralmente muito rápido!</small>
+                </div>
+            </section>
+        </div>
+
+        <div id="gerador-legenda" class="ferramenta-container hidden">
+            <section class="ferramenta-influencer">
+                <h2>✍️ Gerador de Legendas Criativas</h2>
+                <p>Crie legendas perfeitas para suas fotos de pet em segundos!</p>
+                
+                <div class="input-group">
+                    <label for="pet">Nome do Pet (Opcional):</label>
+                    <input type="text" id="pet" placeholder="Ex: Bob, Princesa, Zeus">
+                </div>
+                
+                <div class="input-group">
+                    <label for="tema">Tema da Foto:</label>
+                    <select id="tema">
+                        <option value="brincando">Brincando/Energia</option>
+                        <option value="dormindo">Dormindo/Preguiça</option>
+                        <option value="comendo">Comendo/Guloseimas</option>
+                        <option value="aventureiro">Aventureiro/Passeio</option>
+                        <option value="aniversario">Aniversário/Data Especial</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="humor">Tom da Legenda:</label>
+                    <select id="humor">
+                        <option value="divertido">Divertido/Engraçado</option>
+                        <option value="fofo">Fofo/Doce</option>
+                        <option value="inspirador">Inspirador/Motivacional</option>
+                        <option value="sarcástico">Sarcástico/Irônico</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="palavra-chave">Palavra-chave extra (Opcional):</label>
+                    <input type="text" id="palavra-chave" placeholder="Ex: 'bolinha', 'sol', 'casaco'">
+                </div>
+                
+                <button onclick="gerarLegenda()">Gerar Legenda</button>
+
+                <div class="resultado-legenda" id="resultadoLegenda">
+                    <h4>Sua Legenda:</h4>
+                    <textarea id="legendaGerada" rows="5" readonly></textarea>
+                    <button onclick="copiarLegenda()">Copiar Legenda</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="editor-videos" class="ferramenta-container hidden">
+            <section class="ferramenta-editor-video">
+                <h2>🎬 Editor de Vídeos Simples (Simulação de Filtros)</h2>
+                <p>Aplique efeitos básicos e redimensione seus vídeos rapidamente para o TikTok/Reels.</p>
+                
+                <div class="input-group">
+                    <label for="inputVideo">Carregar Vídeo:</label>
+                    <input type="file" id="inputVideo" accept="video/*" onchange="carregarVideo(event)">
+                </div>
+                
+                <div class="video-preview-container">
+                    <video id="videoPreview" controls style="display: none; max-width: 100%;"></video>
+                    <p id="avisoVideo">Carregue um vídeo para visualização.</p>
+                </div>
+
+                <div class="controles-video">
+                    <h4>Efeitos Básicos:</h4>
+                    <div class="input-group">
+                        <label for="filtroVideo">Filtro:</label>
+                        <select id="filtroVideo" onchange="aplicarFiltroVideo()">
+                            <option value="
